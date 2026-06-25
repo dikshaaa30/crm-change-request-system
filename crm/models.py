@@ -1,22 +1,23 @@
 from django.db import models
+import uuid
 
 
-class Ticket(models.Model):
+class ChangeRequest(models.Model):
 
     STATUS_CHOICES = [
         ('Open', 'Open'),
-        ('Pending', 'Pending'),
-        ('Approved', 'Approved'),
-        ('Assigned', 'Assigned'),
+        ('In Progress', 'In Progress'),
         ('Closed', 'Closed'),
     ]
 
-    employee_name = models.CharField(
-        max_length=100
+    ticket_number = models.CharField(
+        max_length=20,
+        unique=True,
+        editable=False
     )
 
-    employee_id = models.CharField(
-        max_length=20
+    employee_name = models.CharField(
+        max_length=100
     )
 
     project_name = models.CharField(
@@ -25,21 +26,31 @@ class Ticket(models.Model):
 
     description = models.TextField()
 
+    attachment = models.FileField(
+        upload_to='uploads/',
+        blank=True,
+        null=True
+    )
+
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
         default='Open'
     )
 
-    assigned_developer = models.CharField(
-        max_length=100,
-        blank=True,
-        null=True
-    )
-
     created_at = models.DateTimeField(
         auto_now_add=True
     )
 
+    def save(self, *args, **kwargs):
+
+        if not self.ticket_number:
+            self.ticket_number = (
+                "CR-" +
+                str(uuid.uuid4())[:8]
+            )
+
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        return self.project_name
+        return self.ticket_number
