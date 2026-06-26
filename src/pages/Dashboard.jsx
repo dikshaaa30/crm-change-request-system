@@ -1,16 +1,35 @@
+import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import { useNavigate } from "react-router-dom";
 
 function Dashboard() {
   const navigate = useNavigate();
+  const [summary, setSummary] = useState(null);
+  const [recentTickets, setRecentTickets] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetch("/api/summary/")
+      .then((response) => {
+        if (!response.ok) throw new Error("Dashboard API fetch failed");
+        return response.json();
+      })
+      .then((data) => {
+        setSummary(data.summary);
+        setRecentTickets(data.recent_tickets || []);
+      })
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
+  }, []);
 
   const cards = [
-    { title: "Total Requests", value: 45, color: "#2563EB" },
-    { title: "Pending L1", value: 8, color: "#F59E0B" },
-    { title: "Pending L2", value: 5, color: "#8B5CF6" },
-    { title: "Assigned", value: 12, color: "#06B6D4" },
-    { title: "Completed", value: 15, color: "#22C55E" },
-    { title: "Rejected", value: 5, color: "#EF4444" },
+    { title: "Total Requests", value: summary?.total ?? 45, color: "#2563EB" },
+    { title: "Open", value: summary?.open ?? 8, color: "#F59E0B" },
+    { title: "In Progress", value: summary?.in_progress ?? 5, color: "#8B5CF6" },
+    { title: "Resolved", value: summary?.resolved ?? 12, color: "#06B6D4" },
+    { title: "Closed", value: summary?.closed ?? 15, color: "#22C55E" },
+    { title: "Recent Tickets", value: recentTickets.length, color: "#EF4444" },
   ];
 
   return (
@@ -22,9 +41,7 @@ function Dashboard() {
       </p>
 
       <div style={{ marginTop: "20px", marginBottom: "20px" }}>
-        <button onClick={() => navigate("/request-form")}>
-          Create Request
-        </button>
+        <button onClick={() => navigate("/request-form")}>Create Request</button>
 
         <button
           style={{ marginLeft: "10px" }}
@@ -80,31 +97,39 @@ function Dashboard() {
             <th>Request ID</th>
             <th>Title</th>
             <th>Status</th>
-            <th>Assigned To</th>
+            <th>Requester</th>
           </tr>
         </thead>
 
         <tbody>
-          <tr>
-            <td>CR001</td>
-            <td>UI Enhancement</td>
-            <td>Pending L1</td>
-            <td>-</td>
-          </tr>
-
-          <tr>
-            <td>CR002</td>
-            <td>API Update</td>
-            <td>Assigned</td>
-            <td>Rahul</td>
-          </tr>
-
-          <tr>
-            <td>CR003</td>
-            <td>Bug Fix</td>
-            <td>Completed</td>
-            <td>Priya</td>
-          </tr>
+          {loading ? (
+            <tr>
+              <td colSpan="4" style={{ textAlign: "center" }}>
+                Loading tickets…
+              </td>
+            </tr>
+          ) : error ? (
+            <tr>
+              <td colSpan="4" style={{ textAlign: "center", color: "red" }}>
+                {error}
+              </td>
+            </tr>
+          ) : recentTickets.length === 0 ? (
+            <tr>
+              <td colSpan="4" style={{ textAlign: "center" }}>
+                No recent tickets found.
+              </td>
+            </tr>
+          ) : (
+            recentTickets.map((ticket) => (
+              <tr key={ticket.id}>
+                <td>{ticket.id}</td>
+                <td>{ticket.title}</td>
+                <td>{ticket.status}</td>
+                <td>{ticket.requester}</td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
     </Layout>
