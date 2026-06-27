@@ -8,22 +8,24 @@ function LandingPage() {
     <div className="landing-container">
       <div className="overlay">
         <div className="landing-content">
-          
           <h1 className="title">
-            Change Request<br />Management System
+            Change Request
+            <span> Management System</span>
           </h1>
 
           <p className="subtitle">
-            A centralized system to manage, track and approve change requests efficiently.
+            Streamline change requests, approvals, tracking, and implementation
+            through one secure platform designed for teams and organizations.
           </p>
 
-          <button
-            className="start-btn"
-            onClick={() => navigate("/login")}
-          >
-            Start
-          </button>
-
+          <div className="button-group">
+            <button
+              className="start-btn"
+              onClick={() => navigate("/login")}
+            >
+              Get Started →
+            </button>
+          </div>
         </div>
       </div>
     </div>
