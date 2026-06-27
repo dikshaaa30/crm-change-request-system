@@ -1,18 +1,16 @@
 from django.contrib import admin
 from django.urls import path, include
-
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-
     path('admin/', admin.site.urls),
 
-    path(
-        'api/tickets/',
-        include('tickets.urls')
-    ),
+    # Ticket APIs
+    path('api/tickets/', include('tickets.urls')),
 
+    # Approval APIs
+    path('api/approvals/', include('approvals.urls')),
 ]
 
 if settings.DEBUG:

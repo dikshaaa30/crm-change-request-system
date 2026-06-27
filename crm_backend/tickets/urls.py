@@ -1,25 +1,12 @@
 from django.urls import path
-
-from .views import (
-    create_ticket,
-    view_tickets,
-    update_ticket
-)
+from . import views
 
 urlpatterns = [
+    path('', views.view_tickets),
 
-    path(
-        'create/',
-        create_ticket
-    ),
+    path('create/', views.create_ticket),
 
-    path(
-        '',
-        view_tickets
-    ),
+    path('update/<int:ticket_id>/', views.update_ticket),
 
-    path(
-        'update/<int:ticket_id>/',
-        update_ticket
-    ),
+    path('summary/', views.summary),
 ]

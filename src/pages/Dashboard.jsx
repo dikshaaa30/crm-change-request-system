@@ -10,7 +10,7 @@ function Dashboard() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch("/api/summary/")
+    fetch("/api/tickets/summary/")
       .then((response) => {
         if (!response.ok) throw new Error("Dashboard API fetch failed");
         return response.json();
