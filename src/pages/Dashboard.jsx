@@ -1,9 +1,21 @@
 import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import { useNavigate } from "react-router-dom";
+import "./Dashboard.css";
+
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
 function Dashboard() {
   const navigate = useNavigate();
+
+  const [darkMode, setDarkMode] = useState(false);
+
   const [summary, setSummary] = useState(null);
   const [recentTickets, setRecentTickets] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -11,9 +23,9 @@ function Dashboard() {
 
   useEffect(() => {
     fetch("/api/tickets/summary/")
-      .then((response) => {
-        if (!response.ok) throw new Error("Dashboard API fetch failed");
-        return response.json();
+      .then((res) => {
+        if (!res.ok) throw new Error("Dashboard API fetch failed");
+        return res.json();
       })
       .then((data) => {
         setSummary(data.summary);
@@ -23,115 +35,123 @@ function Dashboard() {
       .finally(() => setLoading(false));
   }, []);
 
+  const chartData = [
+    { name: "Open", value: summary?.open ?? 0 },
+    { name: "In Progress", value: summary?.in_progress ?? 0 },
+    { name: "Resolved", value: summary?.resolved ?? 0 },
+    { name: "Closed", value: summary?.closed ?? 0 },
+  ];
+
+  const COLORS = ["#F59E0B", "#8B5CF6", "#06B6D4", "#22C55E"];
+
   const cards = [
-    { title: "Total Requests", value: summary?.total ?? 45, color: "#2563EB" },
-    { title: "Open", value: summary?.open ?? 8, color: "#F59E0B" },
-    { title: "In Progress", value: summary?.in_progress ?? 5, color: "#8B5CF6" },
-    { title: "Resolved", value: summary?.resolved ?? 12, color: "#06B6D4" },
-    { title: "Closed", value: summary?.closed ?? 15, color: "#22C55E" },
-    { title: "Recent Tickets", value: recentTickets.length, color: "#EF4444" },
+    { title: "Total Requests", value: summary?.total ?? 0 },
+    { title: "Open", value: summary?.open ?? 0 },
+    { title: "In Progress", value: summary?.in_progress ?? 0 },
+    { title: "Resolved", value: summary?.resolved ?? 0 },
+    { title: "Closed", value: summary?.closed ?? 0 },
+    { title: "Recent Tickets", value: recentTickets.length },
   ];
 
   return (
     <Layout>
-      <h1>CRM Dashboard</h1>
+      <div className={darkMode ? "dashboard dark" : "dashboard"}>
 
-      <p style={{ color: "#64748B" }}>
-        Welcome to the Change Management Dashboard
-      </p>
+        {/* TOP BAR */}
+        <div className="topbar">
 
-      <div style={{ marginTop: "20px", marginBottom: "20px" }}>
-        <button onClick={() => navigate("/request-form")}>Create Request</button>
+          <h2>CRM Dashboard</h2>
 
-        <button
-          style={{ marginLeft: "10px" }}
-          onClick={() => navigate("/request-list")}
-        >
-          View Requests
-        </button>
+          <div className="action-buttons">
 
-        <button
-          style={{ marginLeft: "10px" }}
-          onClick={() => navigate("/approval")}
-        >
-          Approval Queue
-        </button>
-      </div>
+            {/* DARK MODE TOGGLE (FIXED) */}
+            <button onClick={() => setDarkMode(!darkMode)}>
+              {darkMode ? "☀ Light Mode" : "🌙 Dark Mode"}
+            </button>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(3,1fr)",
-          gap: "20px",
-        }}
-      >
-        {cards.map((card, index) => (
-          <div
-            key={index}
-            style={{
-              background: card.color,
-              color: "white",
-              padding: "20px",
-              borderRadius: "12px",
-            }}
-          >
-            <h3>{card.title}</h3>
-            <h1>{card.value}</h1>
+            {/* CREATE REQUEST */}
+            <button onClick={() => navigate("/request-form")}>
+              ➕ Create Request
+            </button>
+
           </div>
-        ))}
-      </div>
 
-      <h2 style={{ marginTop: "40px" }}>
-        Recent Change Requests
-      </h2>
+        </div>
 
-      <table
-        style={{
-          width: "100%",
-          marginTop: "15px",
-          background: "white",
-        }}
-      >
-        <thead>
-          <tr>
-            <th>Request ID</th>
-            <th>Title</th>
-            <th>Status</th>
-            <th>Requester</th>
-          </tr>
-        </thead>
+        {/* CARDS */}
+        <div className="card-grid">
+          {cards.map((c, i) => (
+            <div key={i} className="card">
+              <h3>{c.title}</h3>
+              <h1>{c.value}</h1>
+            </div>
+          ))}
+        </div>
 
-        <tbody>
-          {loading ? (
-            <tr>
-              <td colSpan="4" style={{ textAlign: "center" }}>
-                Loading tickets…
-              </td>
-            </tr>
-          ) : error ? (
-            <tr>
-              <td colSpan="4" style={{ textAlign: "center", color: "red" }}>
-                {error}
-              </td>
-            </tr>
-          ) : recentTickets.length === 0 ? (
-            <tr>
-              <td colSpan="4" style={{ textAlign: "center" }}>
-                No recent tickets found.
-              </td>
-            </tr>
-          ) : (
-            recentTickets.map((ticket) => (
-              <tr key={ticket.id}>
-                <td>{ticket.id}</td>
-                <td>{ticket.title}</td>
-                <td>{ticket.status}</td>
-                <td>{ticket.requester}</td>
+        {/* CHART */}
+        <div className="chart-box">
+          <h3>Request Overview</h3>
+
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={chartData}
+                dataKey="value"
+                nameKey="name"
+                outerRadius={120}
+                label
+              >
+                {chartData.map((_, i) => (
+                  <Cell key={i} fill={COLORS[i]} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* TABLE */}
+        <div className="table-section">
+          <h2>Recent Change Requests</h2>
+
+          <table className="dashboard-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Requester</th>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            </thead>
+
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan="4">Loading...</td>
+                </tr>
+              ) : error ? (
+                <tr>
+                  <td colSpan="4">{error}</td>
+                </tr>
+              ) : recentTickets.length === 0 ? (
+                <tr>
+                  <td colSpan="4">No data found</td>
+                </tr>
+              ) : (
+                recentTickets.map((t) => (
+                  <tr key={t.id}>
+                    <td>#{t.id}</td>
+                    <td>{t.title}</td>
+                    <td>{t.status}</td>
+                    <td>{t.requester}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+      </div>
     </Layout>
   );
 }

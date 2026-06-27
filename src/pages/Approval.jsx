@@ -1,80 +1,90 @@
 import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
+import "./Dashboard.css"; // reuse same design system
 
 function Approval() {
-  const [approvals, setApprovals] = useState([]);
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/approvals/level1/")
+    fetch("/api/tickets/approval/")
       .then((res) => res.json())
-      .then((data) => setApprovals(data))
-      .catch((err) => console.log(err));
-  }, []);
-
-  function approveTicket(id, status) {
-    fetch(`http://127.0.0.1:8000/api/approvals/approve/${id}/`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        status: status,
-        remarks: "",
-      }),
-    })
-      .then((res) => res.json())
-      .then(() => {
-        window.location.reload();
+      .then((data) => {
+        setRequests(data || []);
       })
-      .catch((err) => console.log(err));
-  }
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <Layout>
-      <div style={{ padding: "20px" }}>
-        <h1>Approval Management</h1>
+      <div className="dashboard">
 
-        <table border="1" cellPadding="10">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Ticket</th>
-              <th>Level</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
+        {/* HEADER */}
+        <div className="dashboard-header">
+          <h1>Approval Queue</h1>
+          <p>Manage pending change requests</p>
+        </div>
 
-          <tbody>
-            {approvals.map((approval) => (
-              <tr key={approval.id}>
-                <td>{approval.id}</td>
-                <td>{approval.ticket}</td>
-                <td>{approval.level}</td>
-                <td>{approval.status}</td>
+        {/* CARDS */}
+        <div className="card-grid">
+          <div className="card">
+            <h3>Pending</h3>
+            <h1>{requests.filter(r => r.status === "open").length}</h1>
+          </div>
 
-                <td>
-                  <button
-                    onClick={() =>
-                      approveTicket(approval.id, "Approved")
-                    }
-                  >
-                    Approve
-                  </button>
+          <div className="card">
+            <h3>Approved</h3>
+            <h1>{requests.filter(r => r.status === "resolved").length}</h1>
+          </div>
 
-                  <button
-                    style={{ marginLeft: "10px" }}
-                    onClick={() =>
-                      approveTicket(approval.id, "Rejected")
-                    }
-                  >
-                    Reject
-                  </button>
-                </td>
+          <div className="card">
+            <h3>Rejected</h3>
+            <h1>{requests.filter(r => r.status === "closed").length}</h1>
+          </div>
+        </div>
+
+        {/* TABLE */}
+        <div className="table-section">
+          <h2>Pending Approvals</h2>
+
+          <table className="dashboard-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Requester</th>
+                <th>Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan="4">Loading...</td>
+                </tr>
+              ) : requests.length === 0 ? (
+                <tr>
+                  <td colSpan="4">No requests found</td>
+                </tr>
+              ) : (
+                requests.map((req) => (
+                  <tr key={req.id}>
+                    <td>#{req.id}</td>
+                    <td>{req.title}</td>
+                    <td>{req.requester}</td>
+                    <td>
+                      <span className={`status ${req.status}`}>
+                        {req.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
       </div>
     </Layout>
   );

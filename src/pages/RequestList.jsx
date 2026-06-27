@@ -1,68 +1,75 @@
 import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
+import "./Dashboard.css";
 
 function RequestList() {
-
-  const [tickets, setTickets] = useState([]);
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchTickets();
+    fetch("/api/tickets/")
+      .then((res) => res.json())
+      .then((data) => {
+        setRequests(data || []);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
-
-  const fetchTickets = async () => {
-
-    const response = await fetch(
-      "http://127.0.0.1:8000/api/tickets/"
-    );
-
-    const data = await response.json();
-
-    setTickets(data);
-  };
 
   return (
     <Layout>
+      <div className="dashboard">
 
-      <h1>Request List</h1>
+        {/* HEADER */}
+        <div className="dashboard-header">
+          <h1>All Requests</h1>
+          <p>View and track all change requests</p>
+        </div>
 
-      <table
-        border="1"
-        cellPadding="10"
-        style={{
-          borderCollapse: "collapse",
-          width: "100%",
-          marginTop: "20px",
-        }}
-      >
+        {/* TABLE */}
+        <div className="table-section">
+          <h2>Request List</h2>
 
-        <thead>
-          <tr>
-            <th>Ticket No.</th>
-            <th>Employee</th>
-            <th>Project</th>
-            <th>Status</th>
-            <th>Created</th>
-          </tr>
-        </thead>
+          <table className="dashboard-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th>Requester</th>
+              </tr>
+            </thead>
 
-        <tbody>
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan="5">Loading requests...</td>
+                </tr>
+              ) : requests.length === 0 ? (
+                <tr>
+                  <td colSpan="5">No requests found</td>
+                </tr>
+              ) : (
+                requests.map((req) => (
+                  <tr key={req.id}>
+                    <td>#{req.id}</td>
+                    <td>{req.title}</td>
+                    <td>{req.description}</td>
+                    <td>
+                      <span className={`status ${req.status}`}>
+                        {req.status}
+                      </span>
+                    </td>
+                    <td>{req.requester}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
 
-          {tickets.map((ticket) => (
-            <tr key={ticket.id}>
-              <td>{ticket.ticket_number}</td>
-              <td>{ticket.employee_name}</td>
-              <td>{ticket.project_name}</td>
-              <td>{ticket.status}</td>
-              <td>
-                {new Date(ticket.created_at).toLocaleString()}
-              </td>
-            </tr>
-          ))}
-
-        </tbody>
-
-      </table>
-
+      </div>
     </Layout>
   );
 }

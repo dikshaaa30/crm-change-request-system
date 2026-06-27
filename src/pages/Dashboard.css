@@ -1,0 +1,258 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* =========================
+   RESET + BASE
+========================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
+}
+
+body {
+  background: #f6f7fb;
+}
+
+/* =========================
+   DASHBOARD WRAPPER
+========================= */
+.dashboard {
+  padding: 32px;
+  min-height: 100vh;
+  background: #f6f7fb;
+  color: #111827;
+}
+
+/* DARK MODE BASE */
+.dashboard.dark {
+  background: #0b1220;
+  color: #e5e7eb;
+}
+
+/* =========================
+   HEADER
+========================= */
+.dashboard-header {
+  margin-bottom: 25px;
+}
+
+.dashboard-header h1 {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.dashboard-header p {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.dashboard.dark .dashboard-header p {
+  color: #9ca3af;
+}
+
+/* =========================
+   ACTION BUTTONS (FIXED NICE UI)
+========================= */
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 25px;
+}
+
+.action-buttons button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 500;
+  color: white;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+  transition: 0.2s;
+}
+
+.action-buttons button:hover {
+  transform: translateY(-2px);
+  opacity: 0.95;
+}
+
+.dashboard.dark .action-buttons button {
+  background: linear-gradient(135deg, #334155, #1f2937);
+}
+
+/* =========================
+   CARDS
+========================= */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.card {
+  background: white;
+  padding: 22px;
+  border-radius: 16px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  transition: 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+}
+
+.card h3 {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.card h1 {
+  font-size: 28px;
+  margin-top: 10px;
+}
+
+.dashboard.dark .card {
+  background: #111827;
+  color: #e5e7eb;
+}
+
+/* =========================
+   TABLE
+========================= */
+.table-section {
+  margin-top: 40px;
+}
+
+.dashboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+}
+
+.dashboard-table th {
+  background: #111827;
+  color: white;
+  padding: 14px;
+  text-align: left;
+}
+
+.dashboard-table td {
+  padding: 14px;
+  border-bottom: 1px solid #eee;
+}
+
+.dashboard.dark .dashboard-table {
+  background: #111827;
+  color: #e5e7eb;
+}
+
+.dashboard.dark .dashboard-table td {
+  border-bottom: 1px solid #1f2937;
+}
+
+/* =========================
+   STATUS BADGES
+========================= */
+.status {
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status.open { background: #fef3c7; color: #92400e; }
+.status.in-progress { background: #dbeafe; color: #1e40af; }
+.status.resolved { background: #dcfce7; color: #166534; }
+.status.closed { background: #e5e7eb; color: #374151; }
+
+/* =========================
+   FORM (CLEAN + FIXED)
+========================= */
+.form-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.form-box {
+  width: 650px;
+  background: white;
+  padding: 32px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+.form-box label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 14px;
+  margin-bottom: 6px;
+}
+
+.form-box input,
+.form-box textarea,
+.form-box select {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  outline: none;
+}
+
+.form-box input:focus,
+.form-box textarea:focus,
+.form-box select:focus {
+  border-color: #111827;
+}
+
+/* =========================
+   SUBMIT BUTTON (RESTORED GOOD UI)
+========================= */
+.submit-btn,
+.form-box button {
+  width: 100%;
+  margin-top: 22px;
+  padding: 13px;
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 15px;
+  cursor: pointer;
+  background: linear-gradient(135deg, #111827, #1f2937);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transition: 0.2s;
+}
+
+.submit-btn:hover,
+.form-box button:hover {
+  transform: translateY(-2px);
+  opacity: 0.95;
+}
+
+.dashboard.dark .submit-btn,
+.dashboard.dark .form-box button {
+  background: linear-gradient(135deg, #334155, #1f2937);
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 900px) {
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-box {
+    width: 90%;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+}

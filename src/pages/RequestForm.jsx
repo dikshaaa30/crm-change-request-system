@@ -1,102 +1,110 @@
 import { useState } from "react";
 import Layout from "../components/Layout";
+import { useNavigate } from "react-router-dom";
+import "./Dashboard.css";
 
 function RequestForm() {
-  const [projectName, setProjectName] = useState("");
-  const [description, setDescription] = useState("");
-  const [file, setFile] = useState(null);
+  const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    requester: "",
+    project: "",   // ✅ ADDED
+  });
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = (e) => {
     e.preventDefault();
 
-    const formData = new FormData();
-
-    formData.append("employee_name", "Pranjal"); // You can later replace this with logged-in user
-    formData.append("project_name", projectName);
-    formData.append("description", description);
-
-    if (file) {
-      formData.append("attachment", file);
-    }
-
-    try {
-      const response = await fetch(
-        "http://127.0.0.1:8000/api/tickets/create/",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-
-      const data = await response.json();
-
-      if (response.ok) {
-        alert("Ticket Created Successfully!");
-
-        setProjectName("");
-        setDescription("");
-        setFile(null);
-
-        console.log(data);
-      } else {
-        alert("Error creating ticket");
-        console.log(data);
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Server Error");
-    }
+    fetch("/api/tickets/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed");
+        return res.json();
+      })
+      .then(() => {
+        navigate("/request-list");
+      })
+      .catch(() => alert("Error creating request"));
   };
 
   return (
     <Layout>
-      <h1>New Change Request</h1>
+      <div className="dashboard">
 
-      <form onSubmit={handleSubmit}>
-        <label>Project</label>
-        <br />
+        <div className="dashboard-header">
+          <h1>Create New Request</h1>
+          <p>Submit a change request</p>
+        </div>
 
-        <select
-          value={projectName}
-          onChange={(e) => setProjectName(e.target.value)}
-        >
-          <option value="">Select Project</option>
-          <option value="CRM Portal">CRM Portal</option>
-          <option value="Inventory System">Inventory System</option>
-          <option value="Employee Management">Employee Management</option>
-        </select>
+        <div className="form-wrapper">
 
-        <br />
-        <br />
+          <form className="form-box" onSubmit={handleSubmit}>
 
-        <label>Description</label>
-        <br />
+            {/* TITLE */}
+            <label>Title</label>
+            <input
+              name="title"
+              value={formData.title}
+              onChange={handleChange}
+              required
+            />
 
-        <textarea
-          rows="5"
-          cols="60"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
+            {/* PROJECT DROPDOWN ✅ NEW */}
+            <label>Project</label>
+            <select
+              name="project"
+              value={formData.project}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select Project</option>
+              <option value="CRM System">CRM System</option>
+              <option value="HR Portal">HR Portal</option>
+              <option value="Finance App">Finance App</option>
+              <option value="Website Upgrade">Website Upgrade</option>
+            </select>
 
-        <br />
-        <br />
+            {/* REQUESTER */}
+            <label>Requester</label>
+            <input
+              name="requester"
+              value={formData.requester}
+              onChange={handleChange}
+              required
+            />
 
-        <label>Attachment</label>
-        <br />
+            {/* DESCRIPTION */}
+            <label>Description</label>
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              rows="5"
+              required
+            />
 
-        <input
-          type="file"
-          onChange={(e) => setFile(e.target.files[0])}
-        />
+            <button type="submit">
+              Submit Request
+            </button>
 
-        <br />
-        <br />
+          </form>
 
-        <button type="submit">
-          Submit Request
-        </button>
-      </form>
+        </div>
+
+      </div>
     </Layout>
   );
 }

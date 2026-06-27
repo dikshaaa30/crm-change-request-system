@@ -1,63 +1,48 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "./Login.css";
 
 function Login() {
   const navigate = useNavigate();
 
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+
+    // temporary login (you can connect backend later)
+    if (username && password) {
+      navigate("/dashboard");
+    } else {
+      alert("Please enter username and password");
+    }
+  };
+
   return (
-    <div
-      style={{
-        height: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        background: "#f4f7fc"
-      }}
-    >
-      <div
-        style={{
-          width: "350px",
-          padding: "30px",
-          background: "white",
-          borderRadius: "10px",
-          boxShadow: "0 0 10px rgba(0,0,0,0.2)"
-        }}
-      >
-        <h2>CRM Login</h2>
+    <div className="login-container">
+      <div className="login-card">
 
-        <input
-          type="text"
-          placeholder="Username"
-          style={{
-            width: "100%",
-            padding: "10px",
-            marginTop: "15px"
-          }}
-        />
+        <h1>Login</h1>
 
-        <input
-          type="password"
-          placeholder="Password"
-          style={{
-            width: "100%",
-            padding: "10px",
-            marginTop: "10px"
-          }}
-        />
+        <form onSubmit={handleLogin}>
+          <input
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
 
-        <button
-          onClick={() => navigate("/dashboard")}
-          style={{
-            width: "100%",
-            padding: "10px",
-            marginTop: "15px",
-            background: "#2563EB",
-            color: "white",
-            border: "none",
-            cursor: "pointer"
-          }}
-        >
-          Login
-        </button>
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+
+          <button type="submit">Login</button>
+        </form>
+
       </div>
     </div>
   );
