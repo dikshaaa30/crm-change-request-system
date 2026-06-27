@@ -1,6 +1,6 @@
 from django.db import models
 import uuid
-
+from django.contrib.auth.models import User
 
 class ChangeRequest(models.Model):
 
@@ -50,3 +50,39 @@ class ChangeRequest(models.Model):
 
     def __str__(self):
         return self.ticket_number
+    
+class DeveloperAssignment(models.Model):
+
+    STATUS_CHOICES = [
+        ('Assigned', 'Assigned'),
+        ('In Progress', 'In Progress'),
+        ('Completed', 'Completed'),
+    ]
+
+    change_request = models.OneToOneField(
+        ChangeRequest,
+        on_delete=models.CASCADE,
+        related_name='assignment'
+    )
+
+    developer = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='Assigned'
+    )
+
+    assigned_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
+
+    def __str__(self):
+        return f"{self.change_request.ticket_number} - {self.developer.username}"
