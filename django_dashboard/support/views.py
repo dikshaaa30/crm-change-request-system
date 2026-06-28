@@ -15,6 +15,39 @@ from .models import SupportTicket
 from .forms import SupportTicketForm
 
 
+def get_ticket_report_data():
+    total = SupportTicket.objects.count()
+    summary = {
+        'open': SupportTicket.objects.filter(status='OPEN').count(),
+        'in_progress': SupportTicket.objects.filter(status='IN_PROGRESS').count(),
+        'resolved': SupportTicket.objects.filter(status='RESOLVED').count(),
+        'closed': SupportTicket.objects.filter(status='CLOSED').count(),
+        'total': total,
+    }
+    by_status_qs = SupportTicket.objects.values('status').annotate(count=Count('id')).order_by('status')
+    by_priority_qs = SupportTicket.objects.values('priority').annotate(count=Count('id')).order_by('priority')
+    recent_week = SupportTicket.objects.filter(created_at__gte=now() - timedelta(days=7)).count()
+    monthly_qs = (
+        SupportTicket.objects
+        .extra({'month': "strftime('%Y-%m', created_at)"})
+        .values('month')
+        .annotate(count=Count('id'))
+        .order_by('month')
+    )
+    by_status = {item['status']: item['count'] for item in by_status_qs}
+    by_priority = {item['priority']: item['count'] for item in by_priority_qs}
+    monthly = list(monthly_qs)
+
+    return {
+        'summary': summary,
+        'total': total,
+        'by_status': by_status,
+        'by_priority': by_priority,
+        'recent_week': recent_week,
+        'monthly': monthly,
+    }
+
+
 def support_dashboard(request):
     if SupportTicket.objects.count() == 0:
         sample_tickets = [
@@ -41,27 +74,23 @@ def support_dashboard(request):
             SupportTicket.objects.create(**ticket_data)
 
     tickets = SupportTicket.objects.order_by('-created_at')[:6]
-    summary = {
-        'open': SupportTicket.objects.filter(status='OPEN').count(),
-        'in_progress': SupportTicket.objects.filter(status='IN_PROGRESS').count(),
-        'resolved': SupportTicket.objects.filter(status='RESOLVED').count(),
-        'closed': SupportTicket.objects.filter(status='CLOSED').count(),
-        'total': SupportTicket.objects.count(),
-    }
+    report_data = get_ticket_report_data()
+    created = request.GET.get('created') == '1'
 
     context = {
-        'summary': summary,
+        'summary': report_data['summary'],
         'tickets': tickets,
+        'created': created,
     }
     return render(request, 'support/dashboard.html', context)
 
 
 def create_ticket(request):
     if request.method == 'POST':
-        form = SupportTicketForm(request.POST)
+        form = SupportTicketForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            return redirect(reverse('support_dashboard'))
+            return redirect(f"{reverse('support_dashboard')}?created=1")
     else:
         form = SupportTicketForm()
 
@@ -82,39 +111,20 @@ def serialize_ticket(ticket):
 
 @require_http_methods(['GET'])
 def api_dashboard_summary(request):
-    summary = {
-        'open': SupportTicket.objects.filter(status='OPEN').count(),
-        'in_progress': SupportTicket.objects.filter(status='IN_PROGRESS').count(),
-        'resolved': SupportTicket.objects.filter(status='RESOLVED').count(),
-        'closed': SupportTicket.objects.filter(status='CLOSED').count(),
-        'total': SupportTicket.objects.count(),
-    }
+    report_data = get_ticket_report_data()
     recent_tickets = [serialize_ticket(ticket) for ticket in SupportTicket.objects.order_by('-created_at')[:6]]
-    return JsonResponse({'summary': summary, 'recent_tickets': recent_tickets})
+    return JsonResponse({'summary': report_data['summary'], 'recent_tickets': recent_tickets})
 
 
 @require_http_methods(['GET'])
 def api_dashboard_statistics(request):
-    total = SupportTicket.objects.count()
-    by_status_qs = SupportTicket.objects.values('status').annotate(count=Count('id'))
-    by_priority_qs = SupportTicket.objects.values('priority').annotate(count=Count('id'))
-    recent_week = SupportTicket.objects.filter(created_at__gte=now() - timedelta(days=7)).count()
-    monthly_qs = (
-        SupportTicket.objects
-        .extra({'month': "strftime('%Y-%m', created_at)"})
-        .values('month')
-        .annotate(count=Count('id'))
-        .order_by('month')
-    )
-    by_status = {item['status']: item['count'] for item in by_status_qs}
-    by_priority = {item['priority']: item['count'] for item in by_priority_qs}
-    monthly = list(monthly_qs)
+    report_data = get_ticket_report_data()
     return JsonResponse({
-        'total': total,
-        'by_status': by_status,
-        'by_priority': by_priority,
-        'recent_week': recent_week,
-        'monthly': monthly,
+        'total': report_data['total'],
+        'by_status': report_data['by_status'],
+        'by_priority': report_data['by_priority'],
+        'recent_week': report_data['recent_week'],
+        'monthly': report_data['monthly'],
     })
 
 
@@ -167,42 +177,51 @@ def api_ticket_detail(request, ticket_id):
 
 
 def statistics(request):
-    total = SupportTicket.objects.count()
-    by_status_qs = SupportTicket.objects.values('status').annotate(count=Count('id'))
-    by_priority_qs = SupportTicket.objects.values('priority').annotate(count=Count('id'))
-
-    # Recent activity
-    recent_week = SupportTicket.objects.filter(created_at__gte=now()-timedelta(days=7)).count()
-
-    # Monthly counts (SQLite strftime)
-    monthly_qs = (SupportTicket.objects
-                  .extra({
-                      'month': "strftime('%Y-%m', created_at)"
-                  })
-                  .values('month')
-                  .annotate(count=Count('id'))
-                  .order_by('month'))
-
-    by_status = {item['status']: item['count'] for item in by_status_qs}
-    by_priority = {item['priority']: item['count'] for item in by_priority_qs}
-    monthly = list(monthly_qs)
+    report_data = get_ticket_report_data()
 
     context = {
-        'total': total,
-        'by_status': by_status,
-        'by_priority': by_priority,
-        'recent_week': recent_week,
-        'monthly': monthly,
+        'total': report_data['total'],
+        'by_status': report_data['by_status'],
+        'by_priority': report_data['by_priority'],
+        'recent_week': report_data['recent_week'],
+        'monthly': report_data['monthly'],
     }
     return render(request, 'support/statistics.html', context)
 
 
 def report_csv(request):
-    # Return a CSV export of all support tickets
+    report_data = get_ticket_report_data()
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="support_tickets.csv"'
 
     writer = csv.writer(response)
+    writer.writerow(['Support Ticket Report'])
+    writer.writerow([])
+    writer.writerow(['Summary'])
+    writer.writerow(['Metric', 'Value'])
+    writer.writerow(['Total Tickets', report_data['total']])
+    writer.writerow(['Open', report_data['summary']['open']])
+    writer.writerow(['In Progress', report_data['summary']['in_progress']])
+    writer.writerow(['Resolved', report_data['summary']['resolved']])
+    writer.writerow(['Closed', report_data['summary']['closed']])
+    writer.writerow(['Recent (7d)', report_data['recent_week']])
+    writer.writerow([])
+    writer.writerow(['Status Breakdown'])
+    writer.writerow(['Status', 'Count'])
+    for status, count in report_data['by_status'].items():
+        writer.writerow([status, count])
+    writer.writerow([])
+    writer.writerow(['Priority Breakdown'])
+    writer.writerow(['Priority', 'Count'])
+    for priority, count in report_data['by_priority'].items():
+        writer.writerow([priority, count])
+    writer.writerow([])
+    writer.writerow(['Monthly Activity'])
+    writer.writerow(['Month', 'Count'])
+    for row in report_data['monthly']:
+        writer.writerow([row['month'], row['count']])
+    writer.writerow([])
+    writer.writerow(['Ticket Details'])
     writer.writerow(['ID', 'Title', 'Requester', 'Status', 'Priority', 'Created At', 'Updated At'])
 
     for t in SupportTicket.objects.order_by('-created_at'):

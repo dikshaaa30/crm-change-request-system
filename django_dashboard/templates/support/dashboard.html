@@ -57,9 +57,17 @@
         </div>
       </div>
 
-      <div style="margin-bottom: 20px;">
+      <div style="margin-bottom: 20px; display:flex; gap:12px; flex-wrap:wrap;">
         <a href="{% url 'create_ticket' %}" style="display:inline-block;padding:12px 20px;border-radius:12px;background:#2563eb;color:white;text-decoration:none;">Create New Ticket</a>
+        <a href="{% url 'statistics' %}" style="display:inline-block;padding:12px 20px;border-radius:12px;background:#0f766e;color:white;text-decoration:none;">View Statistics</a>
+        <a href="{% url 'report_csv' %}" style="display:inline-block;padding:12px 20px;border-radius:12px;background:#7c3aed;color:white;text-decoration:none;">Download CSV</a>
       </div>
+
+      {% if created %}
+        <div style="margin-bottom: 16px; padding: 12px 14px; border-radius: 12px; background: #dcfce7; color: #166534; border: 1px solid #86efac;">
+          Ticket submitted successfully.
+        </div>
+      {% endif %}
 
       <div class="table-card">
         <h2 style="margin-bottom: 18px;">Latest tickets</h2>
