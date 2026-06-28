@@ -20,7 +20,7 @@ function DeveloperAssignment() {
   };
 
   const loadDevelopers = () => {
-    fetch("http://127.0.0.1:8000/api/tickets/developers/")
+    fetch("http://127.0.0.1:8000/api/tickets/users/")
       .then((res) => res.json())
       .then((data) => setDevelopers(data))
       .catch((err) => console.error(err));
@@ -34,7 +34,7 @@ function DeveloperAssignment() {
       return;
     }
 
-    fetch("http://127.0.0.1:8000/api/tickets/assign/", {
+    fetch("http://127.0.0.1:8000/api/tickets/assign-developer/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
