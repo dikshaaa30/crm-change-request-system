@@ -9,6 +9,7 @@ function Sidebar() {
       <Link to="/request-form">New Request</Link>
       <Link to="/request-list">Request List</Link>
       <Link to="/approval">Approval</Link>
+      <Link to="/assign-developer">Assign Developer</Link>
     </div>
   );
 }

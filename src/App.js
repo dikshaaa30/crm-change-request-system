@@ -5,6 +5,7 @@ import Dashboard from "./pages/Dashboard";
 import RequestForm from "./pages/RequestForm";
 import RequestList from "./pages/RequestList";
 import Approval from "./pages/Approval";
+import AssignDeveloper from "./pages/AssignDeveloper";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/request-form" element={<RequestForm />} />
         <Route path="/request-list" element={<RequestList />} />
         <Route path="/approval" element={<Approval />} />
+        <Route path="/assign-developer" element={<AssignDeveloper />} />
       </Routes>
     </BrowserRouter>
   );
