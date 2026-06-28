@@ -32,14 +32,20 @@ def create_ticket(request):
             level=2
         )
 
-        return Response({
-            "message": "Ticket Created Successfully",
-            "data": serializer.data
-        })
+        return Response(
+            {
+                "message": "Ticket Created Successfully",
+                "data": serializer.data
+            },
+            status=201
+        )
 
-    return Response(serializer.errors)
-
-
+    return Response(
+        {
+            "errors": serializer.errors
+        },
+        status=400
+    )
 # ----------------------------
 # View All Tickets API
 # ----------------------------
@@ -54,6 +60,28 @@ def view_tickets(request):
     )
 
     return Response(serializer.data)
+# ----------------------------
+# View All Tickets API
+# ----------------------------
+# ----------------------------
+# Get Developers API
+# ----------------------------
+@api_view(['GET'])
+def developers(request):
+
+    users = User.objects.all()
+
+    data = []
+
+    for user in users:
+
+        data.append({
+            "id": user.id,
+            "username": user.username
+        })
+
+
+    return Response(data)
 
 
 # ----------------------------

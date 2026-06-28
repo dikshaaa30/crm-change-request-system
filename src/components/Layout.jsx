@@ -39,6 +39,10 @@ function Layout({ children }) {
             Approval
           </Link>
 
+          <Link to="/developer-assignment" style={linkStyle}>
+            Developer Assignment
+          </Link>
+
           <button
             onClick={() => navigate("/")}
             style={{

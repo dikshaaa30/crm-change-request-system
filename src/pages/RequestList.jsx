@@ -53,15 +53,15 @@ function RequestList() {
               ) : (
                 requests.map((req) => (
                   <tr key={req.id}>
-                    <td>#{req.id}</td>
-                    <td>{req.title}</td>
-                    <td>{req.description}</td>
-                    <td>
-                      <span className={`status ${req.status}`}>
-                        {req.status}
-                      </span>
-                    </td>
-                    <td>{req.requester}</td>
+                    <td>{req.ticket_number}</td>
+<td>{req.project_name}</td>
+<td>{req.description}</td>
+<td>
+  <span className={`status ${req.status?.toLowerCase()}`}>
+    {req.status}
+  </span>
+</td>
+<td>{req.employee_name}</td>
                   </tr>
                 ))
               )}

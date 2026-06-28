@@ -20,25 +20,35 @@ function RequestForm() {
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+ const handleSubmit = (e) => {
+  e.preventDefault();
 
-    fetch("/api/tickets/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
+  fetch("/api/tickets/create/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      employee_name: formData.requester,
+      project_name: formData.project,
+      description: formData.description,
+    }),
+  })
+    .then(async (res) => {
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.log(data);
+        throw new Error("Failed");
+      }
+
+      navigate("/request-list");
     })
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed");
-        return res.json();
-      })
-      .then(() => {
-        navigate("/request-list");
-      })
-      .catch(() => alert("Error creating request"));
-  };
+    .catch((err) => {
+      console.error(err);
+      alert("Error creating request");
+    });
+};
 
   return (
     <Layout>
