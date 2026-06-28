@@ -9,6 +9,7 @@ import {
   Cell,
   Tooltip,
   ResponsiveContainer,
+  Legend,
 } from "recharts";
 
 function Dashboard() {
@@ -45,72 +46,118 @@ function Dashboard() {
   const COLORS = ["#F59E0B", "#8B5CF6", "#06B6D4", "#22C55E"];
 
   const cards = [
-    { title: "Total Requests", value: summary?.total ?? 0 },
-    { title: "Open", value: summary?.open ?? 0 },
-    { title: "In Progress", value: summary?.in_progress ?? 0 },
-    { title: "Resolved", value: summary?.resolved ?? 0 },
-    { title: "Closed", value: summary?.closed ?? 0 },
-    { title: "Recent Tickets", value: recentTickets.length },
+    {
+      title: "Total Requests",
+      value: summary?.total ?? 0,
+      color: "#2563EB",
+    },
+    {
+      title: "Open",
+      value: summary?.open ?? 0,
+      color: "#F59E0B",
+    },
+    {
+      title: "In Progress",
+      value: summary?.in_progress ?? 0,
+      color: "#8B5CF6",
+    },
+    {
+      title: "Resolved",
+      value: summary?.resolved ?? 0,
+      color: "#06B6D4",
+    },
+    {
+      title: "Closed",
+      value: summary?.closed ?? 0,
+      color: "#22C55E",
+    },
+    {
+      title: "Recent Tickets",
+      value: recentTickets.length,
+      color: "#EF4444",
+    },
   ];
 
   return (
     <Layout>
       <div className={darkMode ? "dashboard dark" : "dashboard"}>
+        {/* Header */}
 
-        {/* TOP BAR */}
-        <div className="topbar">
-
-          <h2>CRM Dashboard</h2>
-
-          <div className="action-buttons">
-
-            {/* DARK MODE TOGGLE (FIXED) */}
-            <button onClick={() => setDarkMode(!darkMode)}>
-              {darkMode ? "☀ Light Mode" : "🌙 Dark Mode"}
-            </button>
-
-            {/* CREATE REQUEST */}
-            <button onClick={() => navigate("/request-form")}>
-              ➕ Create Request
-            </button>
-
+        <div className="dashboard-header">
+          <div>
+            <h2>Dashboard</h2>
+            <p>
+              Welcome! Here's a quick overview of your change requests.
+            </p>
           </div>
 
+          <div className="action-buttons">
+            <button
+              className="theme-btn"
+              onClick={() => setDarkMode(!darkMode)}
+            >
+              {darkMode ? "☀ Light" : "🌙 Dark"}
+            </button>
+
+            <button
+              className="create-btn"
+              onClick={() => navigate("/request-form")}
+            >
+              + Create Request
+            </button>
+          </div>
         </div>
 
-        {/* CARDS */}
+        {/* Summary Cards */}
+
         <div className="card-grid">
-          {cards.map((c, i) => (
-            <div key={i} className="card">
-              <h3>{c.title}</h3>
-              <h1>{c.value}</h1>
+          {cards.map((card, index) => (
+            <div
+              key={index}
+              className="card"
+              style={{
+                borderTop: `5px solid ${card.color}`,
+              }}
+            >
+              <h3>{card.title}</h3>
+              <h1>{card.value}</h1>
             </div>
           ))}
         </div>
 
-        {/* CHART */}
+        {/* Chart */}
+
         <div className="chart-box">
           <h3>Request Overview</h3>
 
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={320}>
             <PieChart>
               <Pie
                 data={chartData}
                 dataKey="value"
                 nameKey="name"
-                outerRadius={120}
+                innerRadius={65}
+                outerRadius={110}
+                paddingAngle={4}
                 label
               >
-                {chartData.map((_, i) => (
-                  <Cell key={i} fill={COLORS[i]} />
+                {chartData.map((entry, index) => (
+                  <Cell
+                    key={index}
+                    fill={COLORS[index % COLORS.length]}
+                  />
                 ))}
               </Pie>
+
               <Tooltip />
+
+              <Legend />
             </PieChart>
           </ResponsiveContainer>
         </div>
 
-        {/* TABLE */}
+        {/* Recent Requests */}
+
         <div className="table-section">
           <h2>Recent Change Requests</h2>
 
@@ -138,19 +185,29 @@ function Dashboard() {
                   <td colSpan="4">No data found</td>
                 </tr>
               ) : (
-                recentTickets.map((t) => (
-                  <tr key={t.id}>
-                    <td>#{t.id}</td>
-                    <td>{t.title}</td>
-                    <td>{t.status}</td>
-                    <td>{t.requester}</td>
+                recentTickets.map((ticket) => (
+                  <tr key={ticket.id}>
+                    <td>#{ticket.id}</td>
+
+                    <td>{ticket.title}</td>
+
+                    <td>
+                      <span
+                        className={`status ${ticket.status
+                          .toLowerCase()
+                          .replace(/\s+/g, "-")}`}
+                      >
+                        {ticket.status}
+                      </span>
+                    </td>
+
+                    <td>{ticket.requester}</td>
                   </tr>
                 ))
               )}
             </tbody>
           </table>
         </div>
-
       </div>
     </Layout>
   );

@@ -10,7 +10,7 @@ function RequestForm() {
     title: "",
     description: "",
     requester: "",
-    project: "",   // ✅ ADDED
+    project: "",
   });
 
   const handleChange = (e) => {
@@ -44,69 +44,243 @@ function RequestForm() {
     <Layout>
       <div className="dashboard">
 
-        <div className="dashboard-header">
-          <h1>Create New Request</h1>
-          <p>Submit a change request</p>
+        <div
+          style={{
+            maxWidth: "850px",
+            margin: "0 auto",
+          }}
+        >
+
+          {/* Heading aligned with form */}
+          <div
+            className="dashboard-header"
+            style={{
+              marginBottom: "20px",
+            }}
+          >
+            <div>
+              <h2>Create New Change Request</h2>
+
+              <p>
+                Complete the form below to submit a new change request.
+              </p>
+            </div>
+          </div>
+
+
+          {/* Form Card */}
+          <div
+            className="card"
+            style={{
+              padding: "30px",
+              borderRadius: "12px",
+            }}
+          >
+
+            <form onSubmit={handleSubmit}>
+
+
+              {/* Title */}
+              <div style={{ marginBottom: "20px" }}>
+
+                <label style={labelStyle}>
+                  Request Title
+                </label>
+
+                <input
+                  type="text"
+                  name="title"
+                  placeholder="Enter request title"
+                  value={formData.title}
+                  onChange={handleChange}
+                  required
+                  style={inputStyle}
+                />
+
+              </div>
+
+
+
+              {/* Project + Requester */}
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "20px",
+                  marginBottom: "20px",
+                }}
+              >
+
+                <div>
+
+                  <label style={labelStyle}>
+                    Project
+                  </label>
+
+                  <select
+                    name="project"
+                    value={formData.project}
+                    onChange={handleChange}
+                    required
+                    style={inputStyle}
+                  >
+
+                    <option value="">
+                      Select Project
+                    </option>
+
+                    <option value="CRM System">
+                      CRM System
+                    </option>
+
+                    <option value="HR Portal">
+                      HR Portal
+                    </option>
+
+                    <option value="Finance App">
+                      Finance App
+                    </option>
+
+                    <option value="Website Upgrade">
+                      Website Upgrade
+                    </option>
+
+                  </select>
+
+                </div>
+
+
+
+                <div>
+
+                  <label style={labelStyle}>
+                    Requester
+                  </label>
+
+                  <input
+                    type="text"
+                    name="requester"
+                    placeholder="Enter requester name"
+                    value={formData.requester}
+                    onChange={handleChange}
+                    required
+                    style={inputStyle}
+                  />
+
+                </div>
+
+
+              </div>
+
+
+
+
+              {/* Description */}
+              <div style={{ marginBottom: "30px" }}>
+
+                <label style={labelStyle}>
+                  Description
+                </label>
+
+
+                <textarea
+                  rows="6"
+                  name="description"
+                  placeholder="Describe the requested change..."
+                  value={formData.description}
+                  onChange={handleChange}
+                  required
+                  style={{
+                    ...inputStyle,
+                    resize: "vertical",
+                  }}
+                />
+
+
+              </div>
+
+
+
+              {/* Buttons */}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  gap: "15px",
+                }}
+              >
+
+                <button
+                  type="button"
+                  onClick={() => navigate(-1)}
+                  style={{
+                    background: "#e5e7eb",
+                    border: "none",
+                    padding: "12px 25px",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    fontWeight: "600",
+                  }}
+                >
+                  Cancel
+                </button>
+
+
+
+                <button
+                  type="submit"
+                  style={{
+                    background: "#2563eb",
+                    color: "white",
+                    border: "none",
+                    padding: "12px 28px",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    fontWeight: "600",
+                  }}
+                >
+                  Submit Request
+                </button>
+
+
+              </div>
+
+
+            </form>
+
+
+          </div>
+
+
         </div>
 
-        <div className="form-wrapper">
-
-          <form className="form-box" onSubmit={handleSubmit}>
-
-            {/* TITLE */}
-            <label>Title</label>
-            <input
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              required
-            />
-
-            {/* PROJECT DROPDOWN ✅ NEW */}
-            <label>Project</label>
-            <select
-              name="project"
-              value={formData.project}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Select Project</option>
-              <option value="CRM System">CRM System</option>
-              <option value="HR Portal">HR Portal</option>
-              <option value="Finance App">Finance App</option>
-              <option value="Website Upgrade">Website Upgrade</option>
-            </select>
-
-            {/* REQUESTER */}
-            <label>Requester</label>
-            <input
-              name="requester"
-              value={formData.requester}
-              onChange={handleChange}
-              required
-            />
-
-            {/* DESCRIPTION */}
-            <label>Description</label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              rows="5"
-              required
-            />
-
-            <button type="submit">
-              Submit Request
-            </button>
-
-          </form>
-
-        </div>
 
       </div>
     </Layout>
   );
 }
+
+
+
+const labelStyle = {
+  display: "block",
+  fontWeight: "600",
+  marginBottom: "8px",
+  color: "#374151",
+};
+
+
+
+const inputStyle = {
+  width: "100%",
+  padding: "12px",
+  border: "1px solid #d1d5db",
+  borderRadius: "8px",
+  fontSize: "15px",
+  outline: "none",
+  boxSizing: "border-box",
+};
+
+
 
 export default RequestForm;
